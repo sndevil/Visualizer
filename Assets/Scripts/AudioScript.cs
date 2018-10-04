@@ -4,8 +4,13 @@ using UnityEngine;
 using B83.MathHelpers;
 
 public class AudioScript : MonoBehaviour {
+    public GameObject[] Cameras;
+    public int CurrentCamera = 0;
+
     const int SampleRate = 48000;
     const int BufferSize = 1024;
+
+    const int AudioDevice = 1;
 
     public Camera c;
 	AudioClip p, previous;
@@ -14,11 +19,15 @@ public class AudioScript : MonoBehaviour {
 
     private List<GameObject> prefabsList = new List<GameObject>();
 
+    public int CameraCountdown = 300;
+
     // Use this for initialization
     void Start () {
+        foreach (string t in Microphone.devices)
+            Debug.Log(t);
         Physics.gravity.Set(0, -9.8f, 0);
-        Debug.Log (Microphone.devices[1]);
-        p = Microphone.Start(Microphone.devices[1], false, 1, SampleRate);
+        Debug.Log ("Connected To: " + Microphone.devices[AudioDevice]);
+        p = Microphone.Start(Microphone.devices[AudioDevice], false, 1, SampleRate);
     }
     // Update is called once per frame
 
@@ -31,15 +40,25 @@ public class AudioScript : MonoBehaviour {
             p.GetData(whole, 0);
             ShowData();
         }
-        if (!Microphone.IsRecording(Microphone.devices[1]))
+
+    }
+
+    private void FixedUpdate()
+    {
+        if (CameraCountdown-- < 0)
+        {
+            CameraCountdown = (int)Random.Range(60, 500);
+            ChangeCamera();
+        }
+        if (!Microphone.IsRecording(Microphone.devices[AudioDevice]))
         {
             p.GetData(whole, 0);
             idx = 0;
-            p = Microphone.Start(Microphone.devices[1], false, 1, SampleRate);
+            p = Microphone.Start(Microphone.devices[AudioDevice], false, 1, SampleRate);
         }
     }
 
-	float[] whole = new float[SampleRate];
+    float[] whole = new float[SampleRate];
 	int idx = 0;	
 	Vector3 oldRotate = new Vector3(0,0,0);
     float freqStep = SampleRate / BufferSize;
@@ -50,11 +69,6 @@ public class AudioScript : MonoBehaviour {
 			return;
 		System.Array.Copy (whole, idx, data, 0, BufferSize);
 		idx += BufferSize;
-        //prefabsList[0].GetComponent<PrefabScript>().ChangeSize(data[20]*20);
-        //prefabsList[0].GetComponent<PrefabScript>().ChangeColor(data[20]*20, data[20]*20, data[20]*20);
-        //Debug.Log (data[0].ToString());
-        //Debug.Log (p.samples.ToString ());
-        //FFT.CalculateFFT
         Complex[] cx = FFT.Float2Complex(data);
 		FFT.CalculateFFT (cx, false);
         float linestart = -3.5f;
@@ -65,7 +79,7 @@ public class AudioScript : MonoBehaviour {
         for (int i = 0; i < cx.Length / 2; i=(int)fstart) {
             fstart += fstep;
             fstep *= 1.05f;
-            var value = cx[i].fMagnitude*20f;//Mathf.Sqrt(cx[i].fMagnitude * 200);
+            var value = cx[i].fMagnitude*20f;
 			if (value > max)
 				max = value;
             GameObject tempObject = Instantiate(prefab, new Vector3(linestart, 0), new Quaternion(0, 90, 0, 0));
@@ -79,15 +93,15 @@ public class AudioScript : MonoBehaviour {
             //linestep *= 0.997f;
 
         }
-		//max = max * max * max / 50f;
-		//var currot = c.transform.rotation;
-		//Debug.Log ("curz:" + currot.z.ToString ());
-		//var correction = new Vector3 (0.7f - currot.x, -currot.y, -currot.z);
-		//correction /= 100f;
-		//Vector3 newRotate = new Vector3 ((Random.value * Random.value - 0.5f) * max, (Random.value * Random.value - 0.5f) * max, (Random.value * Random.value - 0.5f) * max);
-		//newRotate = (newRotate + oldRotate) / 2f;
-		//newRotate = (newRotate + 2 * correction) / 3f;
-		//c.transform.Rotate (newRotate);
-		//oldRotate = newRotate;
 	}
+
+    public void ChangeCamera()
+    {
+        int next = CurrentCamera;
+        while (next == CurrentCamera)
+            next = Random.Range(0, Cameras.Length);
+        for (int i = 0; i < Cameras.Length; i++)
+            Cameras[i].SetActive(i == next);
+        CurrentCamera = next;
+    }
 }
