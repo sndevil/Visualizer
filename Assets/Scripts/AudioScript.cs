@@ -35,7 +35,7 @@ public class AudioScript : MonoBehaviour {
 	void Update () {
         //Debug.Log(Microphone.GetPosition(Microphone.devices[1]));
         //if (show)
-        if (framescape++ > 10)
+        if (framescape++ > 20)
         {
             p.GetData(whole, 0);
             ShowData();
@@ -72,23 +72,25 @@ public class AudioScript : MonoBehaviour {
         Complex[] cx = FFT.Float2Complex(data);
 		FFT.CalculateFFT (cx, false);
         float linestart = -3.5f;
-        float linestep = 0.03f;
+        float linestep = 0.1f;
         float max = 0;
         float fstep = 1f;
         float fstart = 0;
-        for (int i = 0; i < cx.Length / 2; i=(int)fstart) {
+        for (int i = 0; i < cx.Length; i=(int)fstart) {
             fstart += fstep;
-            fstep *= 1.05f;
+            fstep *= 1.9f;
             var value = cx[i].fMagnitude*20f;
 			if (value > max)
 				max = value;
-            GameObject tempObject = Instantiate(prefab, new Vector3(linestart, 0), new Quaternion(0, 90, 0, 0));
-            PrefabScript tempScript = tempObject.GetComponent<PrefabScript>();
-            tempScript.shownObject.transform.localRotation = new Quaternion(0, 0, 0, 0);
-            tempScript.ChangeSize(value*20);
-            tempScript.ChangeColor(value,(int)(i*freqStep));
-            tempObject.SetActive(true);
-
+            if (value > 0.01f)
+            {
+                GameObject tempObject = Instantiate(prefab, new Vector3(linestart, 0), new Quaternion(0, 90, 0, 0));
+                PrefabScript tempScript = tempObject.GetComponent<PrefabScript>();
+                tempScript.shownObject.transform.localRotation = new Quaternion(0, 0, 0, 0);
+                tempScript.ChangeSize(value * 30);
+                tempScript.ChangeColor(value, (int)(i * freqStep));
+                tempObject.SetActive(true);
+            }
             linestart += linestep;
             //linestep *= 0.997f;
 

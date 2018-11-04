@@ -5,23 +5,26 @@ using UnityEngine;
 public class PrefabScript : MonoBehaviour {
 
     public GameObject shownObject;
-    private float speed = 0.05f;
+    public Light lightObject;
+
+    private float speed = 0.04f;
     // Use this for initialization
 	void Start () {
-        Destroy(this.gameObject, 5f);
+        Destroy(this.gameObject, 3f);
 	}
 
     public Color CurrentColor;
 
 	void Update () {
-        gameObject.transform.position = gameObject.transform.position - new Vector3(0, 0, speed);
+        //gameObject.transform.
+        gameObject.transform.position = gameObject.transform.position - new Vector3(0, speed, 0);
 
     }
 
     public void ChangeSize(float size) {
         size = (2 * Mathf.Sqrt(Mathf.Abs(size))+ Mathf.Abs(size)) / 2f;
-        var diameter = Random.Range(0.2f, 2.5f);
-        shownObject.transform.localScale = new Vector3(diameter,size, 1);
+        var diameter = Random.Range(0.5f, 2.5f);
+        shownObject.transform.localScale = new Vector3(diameter, size, diameter);
     }
 
     public void ChangeColor(float R, float G, float B, float A = 1f)
@@ -33,7 +36,7 @@ public class PrefabScript : MonoBehaviour {
     {
         CurrentColor = valueToColor(Val,freq);
         shownObject.GetComponent<Renderer>().material.color = CurrentColor;
-
+        lightObject.intensity = Val*Val*1.5f;
     }
 
     private Color valueToColor(float value, int freq) {
