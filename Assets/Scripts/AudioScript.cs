@@ -12,6 +12,8 @@ public class AudioScript : MonoBehaviour {
 
     const int AudioDevice = 1;
 
+    float InputGain = 2;
+
     public Camera c;
 	AudioClip p, previous;
 
@@ -33,18 +35,16 @@ public class AudioScript : MonoBehaviour {
 
     int framescape = 0;
 	void Update () {
-        //Debug.Log(Microphone.GetPosition(Microphone.devices[1]));
-        //if (show)
-        if (framescape++ > 20)
-        {
-            p.GetData(whole, 0);
-            ShowData();
-        }
 
     }
 
     private void FixedUpdate()
     {
+        if (framescape++ > 30)
+        {
+            p.GetData(whole, 0);
+            ShowData();
+        }
         if (CameraCountdown-- < 0)
         {
             CameraCountdown = (int)Random.Range(60, 500);
@@ -79,12 +79,23 @@ public class AudioScript : MonoBehaviour {
         for (int i = 0; i < cx.Length; i=(int)fstart) {
             fstart += fstep;
             fstep *= 1.9f;
-            var value = cx[i].fMagnitude*20f;
+            var value = cx[i].fMagnitude*20f * InputGain;
 			if (value > max)
 				max = value;
             if (value > 0.01f)
             {
-                GameObject tempObject = Instantiate(prefab, new Vector3(linestart, 0), new Quaternion(0, 90, 0, 0));
+                float rotationValue = value;
+                float x = linestart;
+                float z = value * linestart / 2;
+                float sinRotation = Mathf.Sin(rotationValue);
+                float cosRotation = Mathf.Cos(rotationValue);
+                float xrotated = cosRotation * x + sinRotation * z;
+                float zrotated = cosRotation * z - sinRotation * x;
+
+
+                Vector3 rotated = new Vector3(xrotated, 0, zrotated);
+
+                GameObject tempObject = Instantiate(prefab, rotated, new Quaternion(0, 90, 0, 0));
                 PrefabScript tempScript = tempObject.GetComponent<PrefabScript>();
                 tempScript.shownObject.transform.localRotation = new Quaternion(0, 0, 0, 0);
                 tempScript.ChangeSize(value * 30);

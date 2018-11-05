@@ -36,7 +36,7 @@ public class PrefabScript : MonoBehaviour {
     {
         CurrentColor = valueToColor(Val,freq);
         shownObject.GetComponent<Renderer>().material.color = CurrentColor;
-        lightObject.intensity = Val*Val*1.5f;
+        lightObject.intensity = Val*1.3f;
     }
 
     private Color valueToColor(float value, int freq) {
