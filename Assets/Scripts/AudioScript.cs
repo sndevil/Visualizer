@@ -81,6 +81,8 @@ public class AudioScript : MonoBehaviour {
         if (!Microphone.IsRecording(Microphone.devices[AudioDevice]))
         {
             p.GetData(whole, 0);
+            p.UnloadAudioData();
+            p = null;
             idx = 0;
             p = Microphone.Start(Microphone.devices[AudioDevice], false, 1, SampleRate);
         }
