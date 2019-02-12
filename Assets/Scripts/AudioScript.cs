@@ -9,6 +9,8 @@ public class AudioScript : MonoBehaviour {
     public int CurrentCamera = 0;
     public Material wall;
 
+    public LightScript light1, light2, light3;
+
     const int SampleRate = 48000;
     const int BufferSize = 1024;
 
@@ -24,6 +26,7 @@ public class AudioScript : MonoBehaviour {
     private List<GameObject> prefabsList = new List<GameObject>();
 
     public int CameraCountdown = 300;
+    float h = 0f;
 
     // Use this for initialization
     void Start () {
@@ -67,16 +70,18 @@ public class AudioScript : MonoBehaviour {
 
     private void FixedUpdate()
     {
+
+        //ChangeColor();
         if (framescape++ > 30)
         {
             p.GetData(whole, 0);
             ShowData();
         }
-        if (CameraCountdown-- < 0)
+       if (CameraCountdown-- < 0)
         {
-            CameraCountdown = (int)Random.Range(60, 500);
-            ChangeCamera();
-            ChangeColor();
+            CameraCountdown = 30;
+            //ChangeCamera();
+            //ChangeColor();
         }
         if (!Microphone.IsRecording(Microphone.devices[AudioDevice]))
         {
@@ -108,37 +113,34 @@ public class AudioScript : MonoBehaviour {
         float linestart = -3.5f;
         float linestep = 0.1f;
         float max = 0;
+
+        float bassEnergy = 0f, midEnergy = 0f, highEnergy = 0f;
+        int counter = 0, i = 0;
+        for (; i < cx.Length / 100; i++ , counter++) //0-200hz
+            bassEnergy += Mathf.Sqrt(cx[counter].fMagnitude * 500f);
+        bassEnergy = bassEnergy / counter;
+        for (counter = 0; i < cx.Length / 10; i++, counter++) // 200-2000hz
+            midEnergy += Mathf.Sqrt(cx[counter].fMagnitude * 1000f);
+        midEnergy = midEnergy / counter;
+        for (counter = 0; i < cx.Length; i++, counter++) // 2000 - 20000hz
+            highEnergy += Mathf.Sqrt(cx[counter].fMagnitude * 5000f);
+        highEnergy = highEnergy / counter;
+
+
+        light1.ChangeColor(bassEnergy, 0, 200);
+        light2.ChangeColor(midEnergy, 200, 2000);
+        light3.ChangeColor(highEnergy, 2000, 20000);
+
+
         float fstep = 1f;
         float fstart = 0;
-        for (int i = 0; i < cx.Length; i=(int)fstart) {
+        for (i = 0; i < cx.Length; i=(int)fstart) {
             fstart += fstep;
             fstep *= 1.9f;
             var realvalue = cx[i].fMagnitude;
             var value = cx[i].fMagnitude*20f * InputGain;
 			if (value > max)
 				max = value;
-            if (value > 0.01f)
-            {
-                float rotationValue = value;
-                float x = linestart;
-                float z = value * linestart / 2;
-                float sinRotation = Mathf.Sin(rotationValue);
-                float cosRotation = Mathf.Cos(rotationValue);
-                float xrotated = cosRotation * x + sinRotation * z;
-                float zrotated = cosRotation * z - sinRotation * x;
-
-
-                Vector3 rotated = new Vector3(xrotated, 0, zrotated);
-
-                GameObject tempObject = Instantiate(prefab, rotated, new Quaternion(0, 90, 0, 0));
-                PrefabScript tempScript = tempObject.GetComponent<PrefabScript>();
-                tempScript.shownObject.transform.localRotation = new Quaternion(0, 0, 0, 0);
-                tempScript.ChangeSize(value * 30);
-                tempScript.ChangeColor(value, (int)(i * freqStep));
-                tempObject.SetActive(true);
-            }
-            linestart += linestep;
-
             Amplitude = realvalue;
             rms = 0.999f * rms + 0.001f * realvalue;
             if (realvalue > max)
@@ -166,24 +168,23 @@ public class AudioScript : MonoBehaviour {
         CurrentCamera = next;
     }
 
+    float hstep = 0.001f;
+
     public void ChangeColor()
     {
-        float amplitudeMagnitude = Mathf.Sqrt(rms * 20f * InputGain);
+        float amplitudeMagnitude = Mathf.Sqrt(rms * 20f * InputGain) / 50f;
         //print(amplitudeMagnitude);
-        float r = Random.Range(0f, 1f) * amplitudeMagnitude;
-        float g = Random.Range(0f, 1f) * amplitudeMagnitude;
-        float b = Random.Range(0f, 1f)* amplitudeMagnitude;
+        //float r = Random.Range(0f, 1f) * amplitudeMagnitude;
+        //float g = Random.Range(0f, 1f) * amplitudeMagnitude;
+        //float b = Random.Range(0f, 1f)* amplitudeMagnitude;
         //print(r);
         //print(g);
         //print(b);
-
-        Color toChange = new Color(r, g, b);
-        wall.color = toChange;
-        //wall.SetColor(Shader.PropertyToID("Color"), toChange);
-        /*foreach (GameObject temp in Walls)
-        {
-            Image t = temp.GetComponent<Image>();
-            print(t);
-        }*/
+        //Color.HSVToRGB(0, 1, amplitudeMagnitude);
+        //Color toChange = new Color(r, g, b);
+        wall.color = Color.HSVToRGB(rms ,amplitudeMagnitude, h);
+        if (h > 1f || h < 0f)
+            hstep *= -1;
+        h += hstep;
     }
 }
