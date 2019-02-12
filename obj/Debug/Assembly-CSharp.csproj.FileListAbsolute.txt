@@ -751,3 +751,6 @@
 /Users/mohammadreza/Developer/CE/obj/Debug/Assembly-CSharp.csproj.CopyComplete
 /Users/mohammadreza/Developer/CE/obj/Debug/Assembly-CSharp.dll
 /Users/mohammadreza/Developer/CE/obj/Debug/Assembly-CSharp.pdb
+/Users/mohammadreza/Developer/CE/Temp/bin/Debug/UnityEditor.UI.dll
+/Users/mohammadreza/Developer/CE/Temp/bin/Debug/UnityEditor.UI.dll.mdb
+/Users/mohammadreza/Developer/CE/Temp/bin/Debug/UnityEditor.UI.xml

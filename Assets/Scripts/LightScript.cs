@@ -5,6 +5,7 @@ using UnityEngine;
 public class LightScript : MonoBehaviour {
 
     public Material LightMaterial;
+    public List<LightArrayScript> RealLights;
 
     public float h = 0, s = 0.5f, v = 0;
 
@@ -15,7 +16,13 @@ public class LightScript : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-       LightMaterial.SetColor("_EmissionColor", Color.HSVToRGB(h, s, v));
+        Color c = Color.HSVToRGB(h, s, v);
+       LightMaterial.SetColor("_EmissionColor", c);
+        foreach (LightArrayScript t in RealLights)
+        {
+            t.setColor(c);
+            t.setIntensity(v);
+        }
         //LightMaterial.color = Color.HSVToRGB(h,s,v);
 
         if (h > hmax || h < hmin)
