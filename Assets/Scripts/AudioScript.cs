@@ -10,6 +10,7 @@ public class AudioScript : MonoBehaviour {
     public Material wall;
 
     public LightScript light1, light2, light3;
+    public Light sceneLight;
 
     const int SampleRate = 48000;
     const int BufferSize = 1024;
@@ -24,8 +25,6 @@ public class AudioScript : MonoBehaviour {
     public GameObject prefab;
 
     private List<GameObject> prefabsList = new List<GameObject>();
-
-    public int CameraCountdown = 300;
     float h = 0f;
 
     // Use this for initialization
@@ -72,17 +71,13 @@ public class AudioScript : MonoBehaviour {
     {
 
         //ChangeColor();
-        if (framescape++ > 30)
-        {
+        //if (framescape++ > 2)
+        //{
             p.GetData(whole, 0);
             ShowData();
-        }
-       if (CameraCountdown-- < 0)
-        {
-            CameraCountdown = 30;
-            //ChangeCamera();
-            //ChangeColor();
-        }
+            ChangeColor();
+        //   framescape = 0;
+        //}
         if (!Microphone.IsRecording(Microphone.devices[AudioDevice]))
         {
             p.GetData(whole, 0);
@@ -96,11 +91,7 @@ public class AudioScript : MonoBehaviour {
     float[] whole = new float[SampleRate];
 	int idx = 0;	
 	Vector3 oldRotate = new Vector3(0,0,0);
-    float freqStep = SampleRate / BufferSize;
-    float max = 0;
     float rms = 0;
-    float Amplitude = 0;
-    int AmplitudeCounter = 30;
 
 	void ShowData () {
 		float[] data = new float[BufferSize];
@@ -110,20 +101,26 @@ public class AudioScript : MonoBehaviour {
 		idx += BufferSize;
         Complex[] cx = FFT.Float2Complex(data);
 		FFT.CalculateFFT (cx, false);
-        float linestart = -3.5f;
-        float linestep = 0.1f;
-        float max = 0;
 
         float bassEnergy = 0f, midEnergy = 0f, highEnergy = 0f;
         int counter = 0, i = 0;
-        for (; i < cx.Length / 100; i++ , counter++) //0-200hz
-            bassEnergy += Mathf.Sqrt(cx[counter].fMagnitude * 500f);
+        for (; i < cx.Length / 100; i++, counter++) //0-200hz
+        {
+            bassEnergy += Mathf.Sqrt(cx[counter].fMagnitude * InputGain * 500f);
+            rms = 0.999f * rms + 0.001f * cx[counter].fMagnitude;
+        }
         bassEnergy = bassEnergy / counter;
         for (counter = 0; i < cx.Length / 10; i++, counter++) // 200-2000hz
-            midEnergy += Mathf.Sqrt(cx[counter].fMagnitude * 1000f);
+        {
+            midEnergy += Mathf.Sqrt(cx[counter].fMagnitude * InputGain * 1000f);
+            rms = 0.999f * rms + 0.001f * cx[counter].fMagnitude;
+        }
         midEnergy = midEnergy / counter;
         for (counter = 0; i < cx.Length; i++, counter++) // 2000 - 20000hz
-            highEnergy += Mathf.Sqrt(cx[counter].fMagnitude * 5000f);
+        {
+            highEnergy += Mathf.Sqrt(cx[counter].fMagnitude * InputGain * 5000f);
+            rms = 0.999f * rms + 0.001f * cx[counter].fMagnitude;
+        }
         highEnergy = highEnergy / counter;
 
 
@@ -132,15 +129,13 @@ public class AudioScript : MonoBehaviour {
         light3.ChangeColor(highEnergy, 2000, 20000);
 
 
-        float fstep = 1f;
-        float fstart = 0;
-        for (i = 0; i < cx.Length; i=(int)fstart) {
+        //float fstep = 1f;
+        //float fstart = 0;
+        /*for (i = 0; i < cx.Length; i=(int)fstart) {
             fstart += fstep;
             fstep *= 1.9f;
             var realvalue = cx[i].fMagnitude;
             var value = cx[i].fMagnitude*20f * InputGain;
-			if (value > max)
-				max = value;
             Amplitude = realvalue;
             rms = 0.999f * rms + 0.001f * realvalue;
             if (realvalue > max)
@@ -155,7 +150,7 @@ public class AudioScript : MonoBehaviour {
             }
             //linestep *= 0.997f;
 
-        }
+        }*/
 	}
 
     public void ChangeCamera()
@@ -167,8 +162,6 @@ public class AudioScript : MonoBehaviour {
             Cameras[i].SetActive(i == next);
         CurrentCamera = next;
     }
-
-    float hstep = 0.001f;
 
     public void ChangeColor()
     {
@@ -182,9 +175,11 @@ public class AudioScript : MonoBehaviour {
         //print(b);
         //Color.HSVToRGB(0, 1, amplitudeMagnitude);
         //Color toChange = new Color(r, g, b);
-        wall.color = Color.HSVToRGB(rms ,amplitudeMagnitude, h);
-        if (h > 1f || h < 0f)
-            hstep *= -1;
-        h += hstep;
+        //wall.color = Color.HSVToRGB(rms ,amplitudeMagnitude, h);
+       //sceneLight.color = Color.HSVToRGB(rms, amplitudeMagnitude, h);
+        sceneLight.intensity = amplitudeMagnitude * 1000f;
+        //if (h > 1f || h < 0f)
+        //    hstep *= -1;
+        //h += hstep;
     }
 }

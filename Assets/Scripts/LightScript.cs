@@ -8,26 +8,32 @@ public class LightScript : MonoBehaviour {
     public List<LightArrayScript> RealLights;
 
     public float h = 0, s = 0.5f, v = 0;
+    int frameCounter = 0;
 
     float hmax = 1f, hmin = 0f, dh = 0.0001f;
 	// Use this for initialization
 	void Start () {
 	}
-	
-	// Update is called once per frame
-	void Update () {
-        Color c = Color.HSVToRGB(h, s, v);
-       LightMaterial.SetColor("_EmissionColor", c);
-        foreach (LightArrayScript t in RealLights)
-        {
-            t.setColor(c);
-            t.setIntensity(v);
-        }
+
+    // Update is called once per frame
+    void Update() {
+
+        //if (frameCounter-- < 0)
+        //{
+            Color c = Color.HSVToRGB(h, s, v);
+            LightMaterial.SetColor("_EmissionColor", c);
+            //foreach (LightArrayScript t in RealLights)
+            //{
+                //t.setColor(c);
+                //t.setIntensity(v);
+            //}
+            //frameCounter = 3;
+       //}
         //LightMaterial.color = Color.HSVToRGB(h,s,v);
 
-        if (h > hmax || h < hmin)
-            dh *= -1;
-        h += dh;
+       //if (h > hmax || h < hmin)
+       //     dh *= -1;
+       // h += dh;
         //Debug.Log("Min:" + hmax.ToString() + "  ," + h.ToString());
 
 	}
@@ -37,7 +43,7 @@ public class LightScript : MonoBehaviour {
         //print(freqstart);
         //print(amplitude);
         //amplitude *= 500f;
-        hmax = Mathf.Sqrt(Mathf.Sqrt(freqend / 20000f)) + amplitude/100f;
+        //hmax = Mathf.Sqrt(Mathf.Sqrt(freqend / 20000f)) + amplitude/100f;
         hmin = Mathf.Sqrt(Mathf.Sqrt(freqstart / 20000f)) - amplitude/100f;
         h = hmin;
 
