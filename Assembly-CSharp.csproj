@@ -109,6 +109,7 @@
     <Compile Include="Assets\Scripts\AudioScript.cs" />
     <Compile Include="Assets\Scripts\ControllerScript.cs" />
     <Compile Include="Assets\Scripts\FFT.cs" />
+    <Compile Include="Assets\Scripts\KeyboardScript.cs" />
     <Compile Include="Assets\Scripts\LightArrayScript.cs" />
     <Compile Include="Assets\Scripts\LightScript.cs" />
     <Compile Include="Assets\Scripts\PrefabScript.cs" />
