@@ -61,36 +61,9 @@ public class AudioScript : MonoBehaviour {
         }
     }
 
-    /*private void FixedUpdate()
-    {
-        //if (FrameScape-- < 0)
-        //{
-        //if (Microphone.GetPosition(Microphone.devices[AudioDevice]) > 0)
-            p.GetData(whole, 0);
-            ShowData();
-            ChangeColor();
-        //    FrameScape = 2;
-        //}
-        if (!Microphone.IsRecording(Microphone.devices[AudioDevice]))
-        {
-            p.GetData(whole, 0);
-            p.UnloadAudioData();
-            p = null;
-            idx = 0;
-            p = Microphone.Start(Microphone.devices[AudioDevice], false, 1, SampleRate);
-        }
-    }*/
-
     private void FixedUpdate()
     {
-        //if (Microphone.GetPosition(Microphone.devices[AudioDevice]) > BufferSize)
-        //{
-            p.GetData(whole, 0);
-        //    p.UnloadAudioData();
-        //    p = null;
-        //    idx = 0;
-        //    p = Microphone.Start(Microphone.devices[AudioDevice], false, 1, SampleRate);
-        //}
+        p.GetData(whole, 0);
         ShowData();
         ChangeColor();
     }

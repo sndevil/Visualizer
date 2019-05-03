@@ -1122,6 +1122,7 @@ GameObject:
   - component: {fileID: 44512669}
   - component: {fileID: 44512668}
   - component: {fileID: 44512667}
+  - component: {fileID: 44512671}
   m_Layer: 0
   m_Name: Scene
   m_TagString: Untagged
@@ -1221,11 +1222,27 @@ MonoBehaviour:
   light1: {fileID: 44512669}
   light2: {fileID: 44512668}
   light3: {fileID: 44512667}
-  sceneLight: {fileID: 0}
   SceneLights:
   - {fileID: 1527017142}
   - {fileID: 349351065}
   - {fileID: 1346629198}
+  cameraScript: {fileID: 44512671}
+--- !u!114 &44512671
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 44512664}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 962b6288e4aeb4b37858bcb6e30f6fbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Cameras:
+  - {fileID: 1528909548}
+  - {fileID: 315474866}
+  - {fileID: 1639036769}
+  speed: 0.2
 --- !u!1 &45098627
 GameObject:
   m_ObjectHideFlags: 0
@@ -13093,8 +13110,8 @@ MonoBehaviour:
   light1: {fileID: 1448331650}
   light2: {fileID: 1997188466}
   light3: {fileID: 333164535}
-  sceneLight: {fileID: 1346629198}
   SceneLights: []
+  cameraScript: {fileID: 0}
 --- !u!4 &394426397
 Transform:
   m_ObjectHideFlags: 0
@@ -20432,8 +20449,8 @@ MonoBehaviour:
   light1: {fileID: 85574619}
   light2: {fileID: 413505951}
   light3: {fileID: 406008495}
-  sceneLight: {fileID: 1527017142}
   SceneLights: []
+  cameraScript: {fileID: 0}
 --- !u!4 &862283762
 Transform:
   m_ObjectHideFlags: 0
@@ -30299,8 +30316,8 @@ MonoBehaviour:
   light1: {fileID: 377625609}
   light2: {fileID: 1244783560}
   light3: {fileID: 733725477}
-  sceneLight: {fileID: 349351065}
   SceneLights: []
+  cameraScript: {fileID: 0}
 --- !u!4 &1181481139
 Transform:
   m_ObjectHideFlags: 0

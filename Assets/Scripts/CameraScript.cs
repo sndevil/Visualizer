@@ -23,6 +23,6 @@ public class CameraScript : MonoBehaviour {
 
     public void SetField(float target)
     {
-        targetField = target * startingField;
+        targetField = startingField / (target * target);
     }
 }
