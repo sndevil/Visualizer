@@ -18,7 +18,7 @@ public class KeyboardScript : MonoBehaviour {
 
         if (Input.GetKeyDown(KeyCode.Alpha1))
             for (int i = 0; i < Cubes.Count; i++)
-                Cubes[i].gameObject.SetActive(i == 0);
+                Cubes[i].SetActive(i == 0);
         else if (Input.GetKeyDown(KeyCode.Alpha2))
             for (int i = 0; i < Cubes.Count; i++)
                 Cubes[i].SetActive(i == 1);

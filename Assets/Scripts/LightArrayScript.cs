@@ -7,12 +7,12 @@ public class LightArrayScript : MonoBehaviour {
 
     public List<Light> lights;
 
-    public void setColor(Color t)
+    public void SetColor(Color t)
     {
         foreach (Light L in lights)
             L.color = t;
     }
-    public void setIntensity(float t)
+    public void SetIntensity(float t)
     {
         foreach (Light L in lights)
             L.intensity = t;

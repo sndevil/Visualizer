@@ -5,12 +5,11 @@ using UnityEngine.UI;
 using B83.MathHelpers;
 
 public class AudioScript : MonoBehaviour {
-    public GameObject[] Cameras;
-    public int CurrentCamera = 0;
     public Material wall;
 
     public LightScript light1, light2, light3;
-    public Light sceneLight;
+    public List<Light> SceneLights;
+    public CameraScript cameraScript;
 
     const int SampleRate = 48000;
     const int BufferSize = 1024;
@@ -19,13 +18,9 @@ public class AudioScript : MonoBehaviour {
 
     float InputGain = 2;
 
-    public Camera c;
-	AudioClip p, previous;
+    //int FrameScape = 2;
 
-    public GameObject prefab;
-
-    private List<GameObject> prefabsList = new List<GameObject>();
-    float h = 0f;
+	AudioClip p;
 
     // Use this for initialization
     void Start () {
@@ -39,11 +34,10 @@ public class AudioScript : MonoBehaviour {
     void StartRecording()
     {
         Debug.Log("Connected To: " + Microphone.devices[AudioDevice]);
-        p = Microphone.Start(Microphone.devices[AudioDevice], false, 1, SampleRate);
+        p = Microphone.Start(Microphone.devices[AudioDevice], true, 1, SampleRate);
     }
     // Update is called once per frame
 
-    int framescape = 0;
 	void Update () {
         if (Input.GetKeyDown(KeyCode.UpArrow))
         {
@@ -67,16 +61,15 @@ public class AudioScript : MonoBehaviour {
         }
     }
 
-    private void FixedUpdate()
+    /*private void FixedUpdate()
     {
-
-        //ChangeColor();
-        //if (framescape++ > 2)
+        //if (FrameScape-- < 0)
         //{
+        //if (Microphone.GetPosition(Microphone.devices[AudioDevice]) > 0)
             p.GetData(whole, 0);
             ShowData();
             ChangeColor();
-        //   framescape = 0;
+        //    FrameScape = 2;
         //}
         if (!Microphone.IsRecording(Microphone.devices[AudioDevice]))
         {
@@ -86,6 +79,20 @@ public class AudioScript : MonoBehaviour {
             idx = 0;
             p = Microphone.Start(Microphone.devices[AudioDevice], false, 1, SampleRate);
         }
+    }*/
+
+    private void FixedUpdate()
+    {
+        //if (Microphone.GetPosition(Microphone.devices[AudioDevice]) > BufferSize)
+        //{
+            p.GetData(whole, 0);
+        //    p.UnloadAudioData();
+        //    p = null;
+        //    idx = 0;
+        //    p = Microphone.Start(Microphone.devices[AudioDevice], false, 1, SampleRate);
+        //}
+        ShowData();
+        ChangeColor();
     }
 
     float[] whole = new float[SampleRate];
@@ -95,8 +102,11 @@ public class AudioScript : MonoBehaviour {
 
 	void ShowData () {
 		float[] data = new float[BufferSize];
-		if (idx >= SampleRate - BufferSize || idx >= Microphone.GetPosition(Microphone.devices[AudioDevice]) - BufferSize)
-			return;
+        if (idx >= SampleRate - BufferSize || idx >= Microphone.GetPosition(Microphone.devices[AudioDevice]) - BufferSize)
+        {
+            idx = 0;
+            return;
+        }
 		System.Array.Copy (whole, idx, data, 0, BufferSize);
 		idx += BufferSize;
         Complex[] cx = FFT.Float2Complex(data);
@@ -112,13 +122,13 @@ public class AudioScript : MonoBehaviour {
         bassEnergy = bassEnergy / counter;
         for (counter = 0; i < cx.Length / 10; i++, counter++) // 200-2000hz
         {
-            midEnergy += Mathf.Sqrt(cx[counter].fMagnitude * InputGain * 1000f);
+            midEnergy += Mathf.Sqrt(cx[counter].fMagnitude * InputGain * 5000f);
             rms = 0.999f * rms + 0.001f * cx[counter].fMagnitude;
         }
         midEnergy = midEnergy / counter;
         for (counter = 0; i < cx.Length; i++, counter++) // 2000 - 20000hz
         {
-            highEnergy += Mathf.Sqrt(cx[counter].fMagnitude * InputGain * 5000f);
+            highEnergy += Mathf.Sqrt(cx[counter].fMagnitude * InputGain * 20000f);
             rms = 0.999f * rms + 0.001f * cx[counter].fMagnitude;
         }
         highEnergy = highEnergy / counter;
@@ -127,59 +137,13 @@ public class AudioScript : MonoBehaviour {
         light1.ChangeColor(bassEnergy, 0, 200);
         light2.ChangeColor(midEnergy, 200, 2000);
         light3.ChangeColor(highEnergy, 2000, 20000);
-
-
-        //float fstep = 1f;
-        //float fstart = 0;
-        /*for (i = 0; i < cx.Length; i=(int)fstart) {
-            fstart += fstep;
-            fstep *= 1.9f;
-            var realvalue = cx[i].fMagnitude;
-            var value = cx[i].fMagnitude*20f * InputGain;
-            Amplitude = realvalue;
-            rms = 0.999f * rms + 0.001f * realvalue;
-            if (realvalue > max)
-            {
-                max = realvalue;
-                AmplitudeCounter = 50;
-            }
-            else if (AmplitudeCounter-- <= 0)
-            {
-                max = realvalue;
-                AmplitudeCounter = 50;
-            }
-            //linestep *= 0.997f;
-
-        }*/
 	}
-
-    public void ChangeCamera()
-    {
-        int next = CurrentCamera;
-        while (next == CurrentCamera)
-            next = Random.Range(0, Cameras.Length);
-        for (int i = 0; i < Cameras.Length; i++)
-            Cameras[i].SetActive(i == next);
-        CurrentCamera = next;
-    }
 
     public void ChangeColor()
     {
-        float amplitudeMagnitude = Mathf.Sqrt(rms * 20f * InputGain) / 50f;
-        //print(amplitudeMagnitude);
-        //float r = Random.Range(0f, 1f) * amplitudeMagnitude;
-        //float g = Random.Range(0f, 1f) * amplitudeMagnitude;
-        //float b = Random.Range(0f, 1f)* amplitudeMagnitude;
-        //print(r);
-        //print(g);
-        //print(b);
-        //Color.HSVToRGB(0, 1, amplitudeMagnitude);
-        //Color toChange = new Color(r, g, b);
-        //wall.color = Color.HSVToRGB(rms ,amplitudeMagnitude, h);
-       //sceneLight.color = Color.HSVToRGB(rms, amplitudeMagnitude, h);
-        sceneLight.intensity = amplitudeMagnitude * 1000f;
-        //if (h > 1f || h < 0f)
-        //    hstep *= -1;
-        //h += hstep;
+        float amplitudeMagnitude = Mathf.Sqrt(rms * 20f * InputGain)*20f;
+        cameraScript.SetField(amplitudeMagnitude);
+        foreach (Light l in SceneLights)
+            l.intensity = amplitudeMagnitude;
     }
 }
