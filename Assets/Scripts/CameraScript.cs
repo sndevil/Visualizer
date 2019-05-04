@@ -6,7 +6,7 @@ public class CameraScript : MonoBehaviour {
 
     public List<Camera> Cameras;
 
-    private float currentField = 72f, targetField = 72f, startingField = 72f;
+    private float currentField = 180f, targetField = 180f, startingField = 180f;
     public float speed = 0.2f;
 
     public void FixedUpdate()
@@ -23,6 +23,8 @@ public class CameraScript : MonoBehaviour {
 
     public void SetField(float target)
     {
-        targetField = startingField / (target * target);
+        targetField = startingField / target;
+        if (targetField > 200) targetField = 200;
+       //print(target.ToString() + " ; " + targetField.ToString());
     }
 }
